@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo Project</title>
+    <style>
+        /* (Same CSS styles as before) */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f9;
+        }
+        .main-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            width: 300px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .content-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+        button {
+            padding: 8px 12px;
+            border: none;
+            background-color: #5cb85c;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #4cae4c;
+        }
+        .todo-content {
+            list-style-type: none;
+            padding: 0;
+        }
+        .todo-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .todo-item button {
+            background-color: #d9534f;
+            border: none;
+            color: white;
+            padding: 5px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .todo-item button:hover {
+            background-color: #c9302c;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <h1>TODO LIST</h1>
+        <div class="content-container">
+            <input type="text" id="todo-input" placeholder="Add todos">
+            <button id="add-btn">Add</button>
+        </div>
+        <ul class="todo-content" id="todo-list">
+            <!-- Todo items will be dynamically added here -->
+        </ul>
+    </div>
+    <script>
+        // Grab necessary elements
+        const inputField = document.getElementById("todo-input");
+        const addButton = document.getElementById("add-btn");
+        const todoList = document.getElementById("todo-list");
+
+        // Function to get todos from localStorage
+        const getTodosFromLocalStorage = () => {
+            const todos = localStorage.getItem("todos");
+            return todos ? JSON.parse(todos) : [];
+        };
+
+        // Function to save todos to localStorage
+        const saveTodosToLocalStorage = (todos) => {
+            localStorage.setItem("todos", JSON.stringify(todos));
+        };
+
+        // Function to render todos on the page
+        const renderTodos = () => {
+            todoList.innerHTML = ""; // Clear current list
+            const todos = getTodosFromLocalStorage();
+
+            todos.forEach((todoText, index) => {
+                const todoItem = document.createElement("li");
+                todoItem.className = "todo-item";
+                todoItem.innerHTML = `
+                    <span>${todoText}</span>
+                    <button class="delete-btn" data-index="${index}">Delete</button>
+                `;
+                todoList.appendChild(todoItem);
+            });
+
+            // Add delete functionality to each delete button
+            const deleteButtons = document.querySelectorAll(".delete-btn");
+            deleteButtons.forEach((btn) =>
+                btn.addEventListener("click", (e) => {
+                    const index = e.target.getAttribute("data-index");
+                    deleteTodo(index);
+                })
+            );
+        };
+
+        // Function to add a new todo
+        const addTodo = () => {
+            const todoText = inputField.value.trim();
+
+            if (todoText) {
+                const todos = getTodosFromLocalStorage();
+                todos.push(todoText); // Add the new todo
+                saveTodosToLocalStorage(todos); // Save updated todos
+                renderTodos(); // Update the UI
+                inputField.value = ""; // Clear input field
+            } else {
+                alert("Please enter a todo item!");
+            }
+        };
+
+        // Function to delete a todo
+        const deleteTodo = (index) => {
+            const todos = getTodosFromLocalStorage();
+            todos.splice(index, 1); // Remove the selected todo
+            saveTodosToLocalStorage(todos); // Save updated todos
+            renderTodos(); // Update the UI
+        };
+
+        // Add event listener to the "Add" button
+        addButton.addEventListener("click", addTodo);
+
+        // Render todos on page load
+        document.addEventListener("DOMContentLoaded", renderTodos);
+    </script>
+</body>
+</html>
